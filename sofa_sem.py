@@ -1,34 +1,5 @@
 import numpy as np
 
-def sync_signals(trama_tx, trama_rx):
-  tx = np.concatenate((trama_tx, trama_tx))
-  corr = np.abs(np.correlate(np.abs(tx) - np.mean(np.abs(tx)),
-                             np.abs(trama_rx) - np.mean(np.abs(trama_rx)), mode='full'))
-  delay = np.argmax(corr) + 1 - len(trama_rx)
-  #print(f'El retraso es de {delay} posiciones')
-  trama_sync = tx[delay:]
-  trama_sync = trama_sync[:len(trama_rx)]
-  return trama_sync
-
-def SymbolErrorRate(sym_rx, sym_tx):
-  error = 0
-  for i, rx in enumerate(sym_rx):
-    if rx != sym_tx[i]:
-      error += 1
-  SER = error / len(sym_tx)
-  return SER, error
-
-def BitErrorRate(sym_rx, sym_tx):
-  sym_rx_bin = ''.join([f'{sym:04b}' for sym in sym_rx])
-  sym_tx_bin = ''.join([f'{sym:04b}' for sym in sym_tx])
-
-  error = 0
-  for i in range(len(sym_tx_bin)):
-    if sym_rx_bin[i] != sym_tx_bin[i]:
-      error += 1
-  BER = error / len(sym_tx_bin)
-  return BER, error
-
 def demapper_sym(symbols_I, symbols_Q, Ns, threshold = 2.0):
    symbol = []
    for i in range(Ns):
@@ -66,40 +37,44 @@ def demapper_sym(symbols_I, symbols_Q, Ns, threshold = 2.0):
             symbol.append(10)
    return(symbol)
 
-def demodulate(arr):  
-  y = []
-  for i in arr:
-    if i == -3+3j:
-      y.append(0)
-    elif i == -3+1j:
-      y.append(1)
-    elif i == -3-3j:
-      y.append(2)
-    elif i == -3-1j:
-      y.append(3)
-    elif i == -1+3j:
-      y.append(4)
-    elif i == -1+1j:
-      y.append(5)
-    elif i == -1-3j:
-      y.append(6)
-    elif i == -1-1j:
-      y.append(7)
-    elif i == 3+3j:
-      y.append(8)
-    elif i == 3+1j:
-      y.append(9)
-    elif i == 3-3j:
-      y.append(10)
-    elif i == 3-1j:
-      y.append(11)
-    elif i == 1+3j:
-      y.append(12)
-    elif i == 1+1j:
-      y.append(13)
-    elif i == 1-3j:
-      y.append(14)
-    elif i == 1-1j:
-      y.append(15)
-  return y
+def add_noise(arr, noise_db):
+    '''
+    Adición de ruido blanco Gaussiano (AWGN).
+    Se le adiciona diferentes cantidades de ruido para ver los efectos de 
+    este en la demodulación. '''
 
+    X_avg_p = np.mean(np.power(arr, 2))
+    X_avg_db = 10 * np.log10(X_avg_p)
+    noise_avg_db = X_avg_db - noise_db
+    noise_avg_p = np.power(10, noise_avg_db / 10)
+    mean_noise = 0
+    noise = np.random.normal(mean_noise, np.sqrt(noise_avg_p), len(arr))
+    return arr + noise
+
+def symbol_error_rate(sym_tx, sym_rx):
+  error = 0
+  for i, rx in enumerate(sym_rx):
+    if rx != sym_tx[i]:
+      error += 1
+  SER = error / len(sym_tx)
+  return SER, error
+
+def bit_error_rate(sym_tx, sym_rx):
+  sym_rx_bin = ''.join([f'{sym:04b}' for sym in sym_rx])
+  sym_tx_bin = ''.join([f'{sym:04b}' for sym in sym_tx])
+  error = 0
+  for i in range(len(sym_tx_bin)):
+    if sym_rx_bin[i] != sym_tx_bin[i]:
+      error += 1
+  BER = error / len(sym_tx_bin)
+  return BER, error
+
+def sync_signals(trama_tx, trama_rx):
+  tx = np.concatenate((trama_tx, trama_tx))
+  corr = np.abs(np.correlate(np.abs(tx) - np.mean(np.abs(tx)),
+                             np.abs(trama_rx) - np.mean(np.abs(trama_rx)), mode='full'))
+  delay = np.argmax(corr) + 1 - len(trama_rx)
+  #print(f'El retraso es de {delay} posiciones')
+  trama_sync = tx[delay:]
+  trama_sync = trama_sync[:len(trama_rx)]
+  return trama_sync
