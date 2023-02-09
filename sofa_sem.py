@@ -37,6 +37,43 @@ def demapper_sym(symbols_I, symbols_Q, Ns, threshold = 2.0):
             symbol.append(10)
    return(symbol)
 
+def demodulate(arr):  
+  y = []
+  for i in arr:
+    if (i == -3+3j):
+      y.append(0)
+    elif (i == -3+1j):
+      y.append(1)
+    elif (i == -3-3j):
+      y.append(2)
+    elif (i == -3-1j):
+      y.append(3)
+    elif (i == -1+3j):
+      y.append(4)
+    elif (i == -1+1j):
+      y.append(5)
+    elif (i == -1-3j):
+      y.append(6)
+    elif (i == -1-1j):
+      y.append(7)
+    elif (i == 3+3j):
+      y.append(8)
+    elif (i == 3+1j):
+      y.append(9)
+    elif (i == 3-3j):
+      y.append(10)
+    elif (i == 3-1j):
+      y.append(11)
+    elif (i == 1+3j):
+      y.append(12)
+    elif (i == 1+1j):
+      y.append(13)
+    elif (i == 1-3j):
+      y.append(14)
+    elif (i == 1-1j):
+      y.append(15)
+  return y
+
 def add_noise(arr, noise_db):
     '''
     Adición de ruido blanco Gaussiano (AWGN).
