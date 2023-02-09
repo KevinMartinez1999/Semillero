@@ -52,6 +52,8 @@ def add_noise(arr, noise_db):
     return arr + noise
 
 def symbol_error_rate(sym_tx, sym_rx):
+  sym_tx = np.array(sym_tx).flatten()
+  sym_rx = np.array(sym_rx).flatten()
   error = 0
   for i, rx in enumerate(sym_rx):
     if rx != sym_tx[i]:
